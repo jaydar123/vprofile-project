@@ -11,7 +11,7 @@ pipeline {
 		NEXUS_PASS = 'Nexus@123'
 		RELEASE_REPO = 'vprofile-release'
 		CENTRAL_REPO = 'vpro-maven-central'
-		NEXUSIP = '34.228.166.178'
+		NEXUSIP = '98.84.183.180'
 		NEXUSPORT = '8081'
 		NEXUS_GRP_REPO = 'vpro-maven-group'
         NEXUS_LOGIN = 'nexuslogin'
@@ -20,6 +20,9 @@ pipeline {
         registryCredential = 'ecr:us-east-1:ecrcreds'
         appRegistry = '340752795409.dkr.ecr.us-east-1.amazonaws.com/vprofileappimg'
         vprofileRegistry = "https://340752795409.dkr.ecr.us-east-1.amazonaws.com"
+        cluster = "vprostage"
+        service = "vprofileappsvc"
+
     }
 
     stages {
@@ -102,6 +105,15 @@ pipeline {
             }
           }
         }
+
+        stage('Deploy to ECS staging') {
+            steps {
+                withAWS(credentials: 'ecrcreds', region: 'us-east-1') {
+                    sh 'aws ecs update-service --cluster ${cluster} --service ${service} --force-new-deployment'
+                } 
+            }
+        }
+
 
 
     }
